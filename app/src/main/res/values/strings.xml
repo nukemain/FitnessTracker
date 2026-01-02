@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">FitnessTracker</string>
+
+    <!-- Strings for MainActivity -->
+    <string name="error_email_required">Podaj email</string>
+    <string name="error_password_required">Podaj hasło</string>
+    <string name="status_logging_in">Logowanie...</string>
+    <string name="status_login_successful">Zalogowano!</string>
+    <string name="status_login_failed">Błędny email lub hasło</string>
+    <string name="status_connection_error">Błąd połączenia: %1$s</string>
+</resources>
