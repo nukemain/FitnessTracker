@@ -1,5 +1,6 @@
+# --- Android / Gradle ---
 *.iml
-.gradle
+.gradle/
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -13,3 +14,34 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# --- Android Studio ---
+*.androidthings
+*.hprof
+
+# --- Aplikacja (moduł app) ---
+/app/build/
+
+# --- Pliki tymczasowe i logi ---
+*.log
+*.tmp
+
+# --- Systemowe ---
+Thumbs.db
+Desktop.ini
+
+# --- Pliki wyjściowe (Instalki) ---
+*.apk
+*.ap_
+*.aab
+
+# --- Klucze i Hasła (BARDZO WAŻNE) ---
+*.jks
+*.keystore
+*.pem
+*.p12
+*.key
+
+# --- Ewentualne pliki konfiguracyjne bazy ---
+config.properties
+db.properties
