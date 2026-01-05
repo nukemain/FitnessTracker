@@ -13,11 +13,13 @@ import java.util.concurrent.Executors;
 
 import pl.fitnesstracker.R;
 import pl.fitnesstracker.controller.FitnessSystemController;
+import pl.fitnesstracker.dao.DatabaseConnector;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText etEmail, etPass, etWeight, etHeight;
     private Spinner spinnerGoal;
+    private Button btnRegister;
     private final FitnessSystemController controller = FitnessSystemController.getInstance();
 
     @Override
@@ -30,11 +32,14 @@ public class RegisterActivity extends AppCompatActivity {
         etWeight = findViewById(R.id.etRegWeight);
         etHeight = findViewById(R.id.etRegHeight);
         spinnerGoal = findViewById(R.id.spinnerRegGoal);
-        Button btnRegister = findViewById(R.id.btnRegisterConfirm);
+        btnRegister = findViewById(R.id.btnRegisterConfirm);
 
         String[] goals = {"Siła", "Cardio"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, goals);
         spinnerGoal.setAdapter(adapter);
+
+        // Sprawdzenie połączenia przy wejściu
+        checkDatabaseConnection();
 
         btnRegister.setOnClickListener(v -> {
             String email = etEmail.getText().toString().trim();
@@ -79,6 +84,25 @@ public class RegisterActivity extends AppCompatActivity {
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Waga/Wzrost muszą być liczbami!", Toast.LENGTH_SHORT).show();
             }
+        });
+    }
+
+    private void checkDatabaseConnection() {
+        // Blokujemy przycisk na czas sprawdzania
+        btnRegister.setEnabled(false);
+        
+        Executors.newSingleThreadExecutor().execute(() -> {
+            boolean connected = DatabaseConnector.isConnected();
+            
+            runOnUiThread(() -> {
+                if (connected) {
+                    btnRegister.setEnabled(true);
+                } else {
+                    Toast.makeText(this, "Brak połączenia z bazą danych! Spróbuj ponownie później.", Toast.LENGTH_LONG).show();
+                    // Możemy zostawić przycisk wyłączony lub pozwolić spróbować ponownie po kliknięciu
+                    btnRegister.setEnabled(false);
+                }
+            });
         });
     }
 }

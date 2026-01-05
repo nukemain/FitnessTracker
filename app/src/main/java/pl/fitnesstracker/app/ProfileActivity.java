@@ -4,9 +4,11 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -25,7 +28,7 @@ import pl.fitnesstracker.model.User;
 public class ProfileActivity extends AppCompatActivity {
 
     private TextView tvUserEmail, tvUserWeight, tvUserGoal;
-    private Button btnEditGoal, btnDeleteAccount, btnAllStats;
+    private Button btnEditGoal, btnDeleteAccount, btnAllStats, btnEditWeight;
     private LinearLayout historyContainer;
 
     private final FitnessSystemController controller = FitnessSystemController.getInstance();
@@ -40,9 +43,19 @@ public class ProfileActivity extends AppCompatActivity {
         tvUserWeight = findViewById(R.id.tvUserWeight);
         tvUserGoal = findViewById(R.id.tvUserGoal);
         btnEditGoal = findViewById(R.id.btnEditGoal);
+        btnEditWeight = findViewById(R.id.btnEditWeight); // Załóżmy, że dodałeś go w XML lub zrobimy klikalny tekst
         btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
         btnAllStats = findViewById(R.id.btnAllStats);
         historyContainer = findViewById(R.id.historyContainer);
+
+        // Jeśli przycisk btnEditWeight nie istnieje w XML, możemy ustawić onClick na samym tvUserWeight
+        if (btnEditWeight != null) {
+            btnEditWeight.setOnClickListener(v -> showEditWeightDialog());
+        } else {
+            tvUserWeight.setOnClickListener(v -> showEditWeightDialog());
+            // Opcjonalnie dodaj informację, że można to kliknąć
+            tvUserWeight.setHint("Kliknij, aby zmienić wagę");
+        }
 
         // Pobranie i wyświetlenie danych
         refreshData();
@@ -60,6 +73,8 @@ public class ProfileActivity extends AppCompatActivity {
     private void refreshData() {
         Executors.newSingleThreadExecutor().execute(() -> {
             User u = controller.getCurrentUser();
+            if (u == null) return;
+            
             // Pobierz historię
             List<TrainingSession> history = controller.getCompletedSessions(u.getId());
 
@@ -75,6 +90,43 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
+    private void showEditWeightDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Zaktualizuj Wagę");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        
+        User u = controller.getCurrentUser();
+        if (u != null && u.getWeight() != null) {
+            input.setText(u.getWeight().toString());
+        }
+
+        builder.setView(input);
+
+        builder.setPositiveButton("Zapisz", (dialog, which) -> {
+            String weightStr = input.getText().toString();
+            if (!weightStr.isEmpty()) {
+                try {
+                    BigDecimal newWeight = new BigDecimal(weightStr);
+                    Executors.newSingleThreadExecutor().execute(() -> {
+                        // Korzystamy z istniejącej metody w controllerze
+                        controller.updateUserData(newWeight, controller.getCurrentUser().getTrainingGoal());
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Waga zaktualizowana!", Toast.LENGTH_SHORT).show();
+                            refreshData();
+                        });
+                    });
+                } catch (Exception e) {
+                    Toast.makeText(this, "Błędny format wagi", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        builder.setNegativeButton("Anuluj", null);
+        builder.show();
+    }
+
     private void renderHistoryList(List<TrainingSession> history) {
         historyContainer.removeAllViews();
 
@@ -88,14 +140,12 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         for (TrainingSession s : history) {
-            // Kontener poziomy dla wiersza (Tekst + Przycisk)
             LinearLayout rowLayout = new LinearLayout(this);
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
             rowLayout.setGravity(Gravity.CENTER_VERTICAL);
             rowLayout.setBackgroundColor(Color.WHITE);
             rowLayout.setPadding(20, 20, 20, 20);
 
-            // Margines dolny dla całego wiersza
             LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
@@ -103,14 +153,12 @@ public class ProfileActivity extends AppCompatActivity {
             rowParams.setMargins(0, 0, 0, 4);
             rowLayout.setLayoutParams(rowParams);
 
-            // 1. Tekst (Data i Czas) - klika się, żeby wejść w szczegóły
             TextView infoText = new TextView(this);
             String date = s.getSessionDate() != null ? s.getSessionDate().toString() : "Data nieznana";
             String duration = s.getDuration() != null ? s.getDuration() : "--:--";
 
             infoText.setText("📅 " + date + "\n⏱ " + duration);
             infoText.setTextSize(16f);
-            // Tekst zajmuje całą dostępną przestrzeń
             infoText.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
             infoText.setOnClickListener(v -> {
@@ -120,12 +168,11 @@ public class ProfileActivity extends AppCompatActivity {
                 startActivity(intent);
             });
 
-            // 2. Przycisk Usuwania (Kosz / X)
             Button btnDelete = new Button(this);
             btnDelete.setText("X");
             btnDelete.setTextColor(Color.WHITE);
-            btnDelete.setBackgroundTintList(getColorStateList(R.color.error)); // Czerwony
-            // Mały rozmiar przycisku
+            btnDelete.setBackgroundTintList(getColorStateList(R.color.error)); 
+            
             LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(100, 100);
             btnParams.setMarginStart(16);
             btnDelete.setLayoutParams(btnParams);
@@ -139,15 +186,12 @@ public class ProfileActivity extends AppCompatActivity {
                         .show();
             });
 
-            // Składamy wiersz
             rowLayout.addView(infoText);
             rowLayout.addView(btnDelete);
-
             historyContainer.addView(rowLayout);
         }
     }
 
-    // Metoda pomocnicza do usuwania
     private void deleteSession(int sessionId) {
         Executors.newSingleThreadExecutor().execute(() -> {
             controller.deleteTrainingSession(sessionId);
@@ -167,9 +211,8 @@ public class ProfileActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, goals);
         goalSpinner.setAdapter(adapter);
 
-        // Ustawienie aktualnego wyboru
         User u = controller.getCurrentUser();
-        if (u.getTrainingGoal() != null && u.getTrainingGoal().equalsIgnoreCase("Cardio")) {
+        if (u != null && u.getTrainingGoal() != null && u.getTrainingGoal().equalsIgnoreCase("Cardio")) {
             goalSpinner.setSelection(1);
         } else {
             goalSpinner.setSelection(0);
@@ -180,11 +223,10 @@ public class ProfileActivity extends AppCompatActivity {
         builder.setPositiveButton("Zapisz", (dialog, which) -> {
             String newGoal = goalSpinner.getSelectedItem().toString();
             Executors.newSingleThreadExecutor().execute(() -> {
-                // Wywołanie metody controllera
                 controller.updateUserGoal(newGoal);
                 runOnUiThread(() -> {
                     Toast.makeText(this, "Cel zaktualizowany!", Toast.LENGTH_SHORT).show();
-                    refreshData(); // Odśwież widok
+                    refreshData(); 
                 });
             });
         });
@@ -202,7 +244,6 @@ public class ProfileActivity extends AppCompatActivity {
                         controller.deleteAccount();
                         runOnUiThread(() -> {
                             Toast.makeText(this, "Konto usunięte.", Toast.LENGTH_LONG).show();
-                            // Wylogowanie i powrót do ekranu startowego
                             Intent i = new Intent(this, MainActivity.class);
                             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(i);

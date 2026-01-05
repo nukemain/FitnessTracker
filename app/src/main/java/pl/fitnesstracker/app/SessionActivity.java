@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
@@ -56,6 +57,19 @@ public class SessionActivity extends AppCompatActivity {
 
         // Obsługa zakończenia
         btnFinishSession.setOnClickListener(v -> finishSession());
+
+        // Obsługa przycisku wstecz
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                new android.app.AlertDialog.Builder(SessionActivity.this)
+                        .setTitle("Wyjście z treningu")
+                        .setMessage("Czy na pewno chcesz przerwać trening? Postępy nie zostaną zapisane.")
+                        .setPositiveButton("Wyjdź", (dialog, which) -> finish())
+                        .setNegativeButton("Zostań", null)
+                        .show();
+            }
+        });
     }
 
     private void startSessionAndLoadExercises() {
