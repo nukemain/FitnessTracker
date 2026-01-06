@@ -42,7 +42,7 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        refreshData(); // Odśwież dane po powrocie z tworzenia planu lub sesji
+        refreshData(); 
     }
 
     @Override
@@ -50,17 +50,14 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // Inicjalizacja widoków
         tvStatsWorkoutCount = findViewById(R.id.tvStatsWorkoutCount);
         tvStatsMax = findViewById(R.id.tvStatsMax);
         tvNotification = findViewById(R.id.tvNotification);
         plansContainer = findViewById(R.id.plansContainer);
         btnAdminPanel = findViewById(R.id.btnAdminPanel);
 
-        // 1. Konfiguracja Powiadomień
         setupNotifications();
 
-        // 2. Obsługa przycisków nawigacyjnych
         findViewById(R.id.btnProfile).setOnClickListener(v ->
                 startActivity(new Intent(this, ProfileActivity.class))
         );
@@ -69,18 +66,14 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, CreatePlanActivity.class))
         );
 
-        // 3. Widoczność panelu Admina
+        // Poprawiona weryfikacja uprawnień
         checkAdminAccess();
 
-        // 4. Pobranie danych
         refreshData();
     }
 
     private void setupNotifications() {
-        // Uruchom harmonogram (ustawia AlarmManager na 6:00)
         NotificationScheduler.scheduleDailyNotification(this);
-
-        // Poproś o uprawnienia w Android 13+ (Tiramisu)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
@@ -90,8 +83,8 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void checkAdminAccess() {
         User currentUser = controller.getCurrentUser();
-        // Prosta weryfikacja - w produkcji lepiej użyć pola 'role' w bazie
-        if (currentUser != null && currentUser.getEmail().startsWith("admin")) {
+        // Sprawdzamy rolę zamiast e-maila
+        if (currentUser != null && "admin".equalsIgnoreCase(currentUser.getRole())) {
             btnAdminPanel.setVisibility(View.VISIBLE);
             btnAdminPanel.setOnClickListener(v -> startActivity(new Intent(this, AdminActivity.class)));
         } else {
@@ -101,15 +94,12 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void refreshData() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            // Pobieranie danych z bazy
             Statistics stats = controller.getUserStatistics();
             List<WorkoutPlan> plans = controller.getUserWorkoutPlans();
             List<Notification> notifs = controller.getUserNotifications();
 
             runOnUiThread(() -> {
-                // Aktualizacja UI
                 tvStatsWorkoutCount.setText("Treningi: " + stats.getTotalWorkouts());
-                // Wyświetlamy datę aktualizacji lub ogólne info, bo 1RM jest teraz w osobnym ekranie
                 tvStatsMax.setText("Ostatnia aktywność: " + (stats.getLastUpdate() != null ? stats.getLastUpdate().toString().substring(0, 10) : "-"));
 
                 if (!notifs.isEmpty()) {
@@ -136,7 +126,6 @@ public class DashboardActivity extends AppCompatActivity {
         }
 
         for (WorkoutPlan plan : plans) {
-            // Główna karta planu
             CardView card = new CardView(this);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -150,26 +139,22 @@ public class DashboardActivity extends AppCompatActivity {
             content.setOrientation(LinearLayout.VERTICAL);
             content.setPadding(32, 32, 32, 32);
 
-            // Tytuł planu
             TextView title = new TextView(this);
             title.setText(plan.getPlanName());
             title.setTextSize(20f);
             title.setTypeface(null, Typeface.BOLD);
             title.setTextColor(getColor(R.color.primary));
 
-            // Podgląd ćwiczeń (tekst)
             TextView preview = new TextView(this);
             preview.setTextSize(14f);
             preview.setTextColor(getColor(R.color.text_secondary));
             preview.setPadding(0, 8, 0, 24);
             preview.setText("Ładowanie podglądu...");
 
-            // --- Przyciski Akcji ---
             LinearLayout btnLayout = new LinearLayout(this);
             btnLayout.setOrientation(LinearLayout.HORIZONTAL);
-            btnLayout.setWeightSum(3); // 3 przyciski
+            btnLayout.setWeightSum(3);
 
-            // 1. START
             Button btnStart = new Button(this);
             btnStart.setText("START");
             btnStart.setBackgroundTintList(getColorStateList(R.color.accent));
@@ -178,7 +163,6 @@ public class DashboardActivity extends AppCompatActivity {
             lpStart.setMarginEnd(8);
             btnStart.setLayoutParams(lpStart);
 
-            // 2. DNI (Harmonogram)
             Button btnSchedule = new Button(this);
             btnSchedule.setText("DNI");
             btnSchedule.setBackgroundTintList(getColorStateList(R.color.primary));
@@ -187,14 +171,11 @@ public class DashboardActivity extends AppCompatActivity {
             lpSch.setMarginEnd(8);
             btnSchedule.setLayoutParams(lpSch);
 
-            // 3. USUŃ
             Button btnDelete = new Button(this);
             btnDelete.setText("USUŃ");
-            btnDelete.setBackgroundTintList(getColorStateList(R.color.background)); // Szary
+            btnDelete.setBackgroundTintList(getColorStateList(R.color.background));
             btnDelete.setTextColor(getColor(R.color.text_secondary));
             btnDelete.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-
-            // --- Logika Przycisków ---
 
             btnStart.setOnClickListener(v -> {
                 Intent intent = new Intent(DashboardActivity.this, SessionActivity.class);
@@ -219,10 +200,8 @@ public class DashboardActivity extends AppCompatActivity {
                         .show();
             });
 
-            // Ładowanie podglądu ćwiczeń w tle
             loadPlanPreview(plan.getId(), preview);
 
-            // Składanie widoku
             btnLayout.addView(btnStart);
             btnLayout.addView(btnSchedule);
             btnLayout.addView(btnDelete);
@@ -268,7 +247,6 @@ public class DashboardActivity extends AppCompatActivity {
                 })
                 .setPositiveButton("Zapisz Harmonogram", (dialog, which) -> {
                     Executors.newSingleThreadExecutor().execute(() -> {
-                        // Wymaga dodania metody assignPlanToDays w Controllerze (pętla po dniach)
                         for(String day : selectedDays) {
                             controller.assignPlanToDay(plan.getId(), day);
                         }

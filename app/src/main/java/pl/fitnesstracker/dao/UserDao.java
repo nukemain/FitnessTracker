@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public class UserDao {
 
-    // Rejestracja użytkownika
     public boolean registerUser(User user) {
-        String insertUserSql = "INSERT INTO Uzytkownik (email, haslo, waga, wzrost, cel_treningowy) VALUES (?, ?, ?, ?, ?)";
+        // Dodano obsługę kolumny 'rola'
+        String insertUserSql = "INSERT INTO Uzytkownik (email, haslo, waga, wzrost, cel_treningowy, rola) VALUES (?, ?, ?, ?, ?, ?)";
         String insertStatsSql = "INSERT INTO Statystyka (id_uzytkownika, data_aktualizacji) VALUES (?, CURRENT_TIMESTAMP)";
 
         Connection conn = null;
@@ -21,16 +21,15 @@ public class UserDao {
 
         try {
             conn = DatabaseConnector.getInstance().getConnection();
-            // Wyłączamy auto-commit, żeby wykonać dwie operacje jako jedną transakcję
             conn.setAutoCommit(false);
 
-            // dodajemy użytkownika
             stmtUser = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS);
             stmtUser.setString(1, user.getEmail());
             stmtUser.setString(2, SecurityUtils.hashPassword(user.getPassword()));
             stmtUser.setBigDecimal(3, user.getWeight());
             stmtUser.setInt(4, user.getHeight());
             stmtUser.setString(5, user.getTrainingGoal());
+            stmtUser.setString(6, user.getRole()); // Zapis roli do bazy
 
             int affectedRows = stmtUser.executeUpdate();
 
@@ -40,18 +39,16 @@ public class UserDao {
                         int newUserId = generatedKeys.getInt(1);
                         user.setId(Integer.valueOf(newUserId));
 
-                        // Tworzymy pusty wpis w Statystykach dla tego użytkownika
                         stmtStats = conn.prepareStatement(insertStatsSql);
                         stmtStats.setInt(1, newUserId);
                         stmtStats.executeUpdate();
 
-                        // Zatwierdzamy transakcję
                         conn.commit();
                         return true;
                     }
                 }
             }
-            conn.rollback(); // Cofamy jeśli coś poszło nie tak
+            conn.rollback();
             return false;
 
         } catch (SQLException e) {
@@ -62,12 +59,11 @@ public class UserDao {
             try {
                 if (stmtUser != null) stmtUser.close();
                 if (stmtStats != null) stmtStats.close();
-                if (conn != null) conn.setAutoCommit(true); // Przywracamy domyślny tryb
+                if (conn != null) conn.setAutoCommit(true);
             } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 
-    // Logowanie
     public Optional<User> login(String email, String rawPassword) {
         String sql = "SELECT * FROM Uzytkownik WHERE email = ?";
 
@@ -88,6 +84,8 @@ public class UserDao {
                     user.setWeight(rs.getBigDecimal("waga"));
                     user.setHeight(Integer.valueOf(rs.getInt("wzrost")));
                     user.setTrainingGoal(rs.getString("cel_treningowy"));
+                    // Pobranie roli z bazy
+                    user.setRole(rs.getString("rola")); 
                     return Optional.of(user);
                 }
             }
@@ -107,13 +105,14 @@ public class UserDao {
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE Uzytkownik SET waga = ?, wzrost = ?, cel_treningowy = ? WHERE id_uzytkownika = ?";
+        String sql = "UPDATE Uzytkownik SET waga = ?, wzrost = ?, cel_treningowy = ?, rola = ? WHERE id_uzytkownika = ?";
         try (Connection conn = DatabaseConnector.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setBigDecimal(1, user.getWeight());
             stmt.setInt(2, user.getHeight());
             stmt.setString(3, user.getTrainingGoal());
-            stmt.setInt(4, user.getId());
+            stmt.setString(4, user.getRole());
+            stmt.setInt(5, user.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
@@ -128,6 +127,7 @@ public class UserDao {
                 User u = new User();
                 u.setId(rs.getInt("id_uzytkownika"));
                 u.setEmail(rs.getString("email"));
+                u.setRole(rs.getString("rola"));
                 users.add(u);
             }
         } catch (SQLException e) { e.printStackTrace(); }

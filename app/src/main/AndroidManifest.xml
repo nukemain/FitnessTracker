@@ -17,20 +17,46 @@
         android:theme="@style/Theme.FitnessTracker">
         <activity
             android:name=".app.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".app.DashboardActivity" />
-        <activity android:name=".app.CreatePlanActivity" />
-        <activity android:name=".app.SessionActivity" />
-        <activity android:name=".app.RegisterActivity" />
-        <activity android:name=".app.ProfileActivity" />
-        <activity android:name=".app.AdminActivity" />
-        <activity android:name=".app.ExerciseStatsActivity" />
-        <activity android:name=".app.SessionDetailsActivity" />
+        <activity 
+            android:name=".app.DashboardActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity 
+            android:name=".app.CreatePlanActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity 
+            android:name=".app.SessionActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity 
+            android:name=".app.RegisterActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity 
+            android:name=".app.ProfileActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity 
+            android:name=".app.AdminActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity 
+            android:name=".app.ExerciseStatsActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+        <activity 
+            android:name=".app.SessionDetailsActivity"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
 
         <receiver android:name=".app.NotificationReceiver" />
     </application>

@@ -8,7 +8,7 @@ public class DatabaseConnector {
     private static DatabaseConnector instance;
     private final Connection connection;
 
-    private static final String URL = "jdbc:postgresql://10.0.2.2:5432/PostgreSQL 19";
+    private static final String URL = "jdbc:postgresql://10.0.2.2:5432/postgres";
     private static final String USER = "app_admin";
     private static final String PASSWORD = "admin123";
     private DatabaseConnector() {

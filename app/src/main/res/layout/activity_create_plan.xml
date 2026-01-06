@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
@@ -11,93 +12,92 @@
         android:orientation="vertical">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
             android:text="Kreator Planu"
-            android:textSize="26sp"
-            android:textStyle="bold"
             android:textColor="@color/primary"
-            android:layout_marginBottom="24dp"/>
+            android:textSize="26sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/etPlanName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nazwa Planu (np. Full Body A)"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="24dp"
+            android:hint="Nazwa Planu (np. Full Body A)" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
+            app:cardBackgroundColor="@color/surface"
             app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="@color/surface">
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="229dp"
                 android:orientation="vertical"
                 android:padding="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Wybierz ćwiczenie:"
-                    android:layout_marginBottom="8dp"/>
+                    android:layout_marginBottom="8dp"
+                    android:text="Wybierz ćwiczenie:" />
 
                 <Spinner
                     android:id="@+id/spinnerExercises"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="#EEEEEE"
-                    android:layout_marginBottom="12dp"/>
+                    android:layout_marginBottom="12dp"
+                    android:background="#EEEEEE" />
 
                 <Button
                     android:id="@+id/btnNewExercise"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:text="+"
-                    android:textSize="24sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="37dp"
+                    android:layout_marginBottom="8dp"
                     android:backgroundTint="@color/primary"
-                    android:padding="0dp"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
-                    android:layout_marginStart="8dp"/>
+                    android:padding="0dp"
+                    android:text="Stwórz własne ćwiczenie"
+                    android:textSize="18sp" />
 
                 <Button
                     android:id="@+id/btnAddToList"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="DODAJ DO LISTY"
-                    android:backgroundTint="@color/primary_dark"/>
+                    android:layout_height="50dp"
+                    android:backgroundTint="@color/primary_dark"
+                    android:text="DODAJ WYBRANE ĆWICZENIE" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lista ćwiczeń w planie:"
-            android:textStyle="bold"
             android:layout_marginTop="24dp"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="8dp"
+            android:text="Lista ćwiczeń w planie:"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:id="@+id/addedExercisesContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="172dp"
             android:background="@color/surface"
-            android:padding="12dp"
-            android:minHeight="50dp"/>
+            android:minHeight="50dp"
+            android:orientation="vertical"
+            android:padding="12dp" />
 
         <Button
             android:id="@+id/btnSaveAll"
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:text="ZAPISZ CAŁY PLAN"
+            android:layout_marginTop="32dp"
             android:backgroundTint="@color/accent"
-            android:layout_marginTop="32dp"/>
+            android:text="ZAPISZ CAŁY PLAN" />
 
     </LinearLayout>
 </ScrollView>

@@ -11,6 +11,7 @@ public class User {
     private Integer height;
     private String trainingGoal;
     private Timestamp registrationDate;
+    private String role = "user"; // Domyślnie "user"
 
     public User() {}
 
@@ -20,6 +21,7 @@ public class User {
         this.weight = weight;
         this.height = height;
         this.trainingGoal = trainingGoal;
+        this.role = "user";
     }
 
     // Gettery i Settery
@@ -44,11 +46,15 @@ public class User {
     public Timestamp getRegistrationDate() { return registrationDate; }
     public void setRegistrationDate(Timestamp registrationDate) { this.registrationDate = registrationDate; }
 
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
+                ", role='" + role + '\'' +
                 ", weight=" + weight +
                 ", height=" + height +
                 ", trainingGoal='" + trainingGoal + '\'' +
