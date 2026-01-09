@@ -26,7 +26,7 @@ public class SessionActivity extends AppCompatActivity {
     private Chronometer timer;
     private TextView tvPlanName;
     private EditText etSessionNote;
-    private LinearLayout exercisesContainer; // Kontener na listę ćwiczeń
+    private LinearLayout exercisesContainer;
     private Button btnFinishSession;
 
     private final FitnessSystemController controller = FitnessSystemController.getInstance();
@@ -40,25 +40,20 @@ public class SessionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_session);
 
-        // Powiązanie widoków
         timer = findViewById(R.id.timer);
         tvPlanName = findViewById(R.id.tvSessionPlanName);
         etSessionNote = findViewById(R.id.etSessionNote);
         exercisesContainer = findViewById(R.id.exercisesContainer);
         btnFinishSession = findViewById(R.id.btnFinishSession);
 
-        // Pobranie danych z Intentu
         planId = getIntent().getIntExtra("PLAN_ID", -1);
         String planName = getIntent().getStringExtra("PLAN_NAME");
         tvPlanName.setText(planName != null ? planName : "Trening");
 
-        // Start sesji i ładowanie ćwiczeń
         startSessionAndLoadExercises();
 
-        // Obsługa zakończenia
         btnFinishSession.setOnClickListener(v -> finishSession());
 
-        // Obsługa przycisku wstecz
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -74,19 +69,15 @@ public class SessionActivity extends AppCompatActivity {
 
     private void startSessionAndLoadExercises() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            // 1. Rozpocznij sesję w bazie
             controller.startSession(planId);
 
-            // 2. Pobierz ćwiczenia przypisane do tego planu
             List<PlanItem> planItems = controller.getPlanDetails(planId);
             totalExercisesCount = planItems.size();
 
             runOnUiThread(() -> {
-                // Start stopera
                 timer.setBase(SystemClock.elapsedRealtime());
                 timer.start();
 
-                // 3. Wygeneruj widoki dla każdego ćwiczenia
                 if (planItems.isEmpty()) {
                     Toast.makeText(this, "Plan jest pusty! Dodaj ćwiczenia w edytorze.", Toast.LENGTH_LONG).show();
                 } else {
@@ -101,38 +92,30 @@ public class SessionActivity extends AppCompatActivity {
     private void addExerciseView(Exercise ex) {
         if (ex == null) return;
 
-        // wiersz z ćwiczeniem
         View view = getLayoutInflater().inflate(R.layout.item_session_exercise, null);
 
-        // Znajdujemy elementy wewnątrz tego wiersza
         TextView tvName = view.findViewById(R.id.tvExName);
         EditText etSets = view.findViewById(R.id.etExSets);
         EditText etReps = view.findViewById(R.id.etExReps);
         EditText etWeight = view.findViewById(R.id.etExWeight);
         Button btnSave = view.findViewById(R.id.btnExSave);
 
-        // Ustawiamy nazwę
         tvName.setText(ex.getName());
 
-        // --- LOGIKA SIŁA vs CARDIO ---
-        // Sprawdzamy typ ćwiczenia
         boolean isCardio = "Cardio".equalsIgnoreCase(ex.getCategory()) || "Cardio".equalsIgnoreCase(ex.getType());
 
         if (isCardio) {
-            // Dostosowanie pod Cardio
-            etReps.setVisibility(View.GONE);       // Ukrywamy powtórzenia
-            etSets.setVisibility(View.GONE);       // Ukrywamy serie
-            etWeight.setHint("Czas (min)");        // Zmieniamy hint Kg -> Czas
+            etReps.setVisibility(View.GONE);
+            etSets.setVisibility(View.GONE);
+            etWeight.setHint("Czas (min)");
             etWeight.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         } else {
-            // Standard dla Siły
             etReps.setVisibility(View.VISIBLE);
             etSets.setVisibility(View.VISIBLE);
             etWeight.setHint("Kg");
             etSets.setHint("Serie");
         }
 
-        // Obsługa przycisku "Zapisz Serię"
         btnSave.setOnClickListener(v -> {
             String sSets = etSets.getText().toString();
             String sReps = etReps.getText().toString();
@@ -148,23 +131,19 @@ public class SessionActivity extends AppCompatActivity {
                 etWeight.setError("Wymagane"); return;
             }
 
-            // Parsowanie danych
             try {
                 int sets = isCardio ? 1 : Integer.parseInt(sSets);
                 int reps = isCardio ? 0 : Integer.parseInt(sReps);
                 double weightOrTime = Double.parseDouble(sWeight);
 
-                // Zapis w tle
                 Executors.newSingleThreadExecutor().execute(() -> {
                     boolean success = controller.logSet(ex.getId(), sets, reps, weightOrTime);
 
                     runOnUiThread(() -> {
                         if (success) {
                             Toast.makeText(this, "Zapisano: " + ex.getName(), Toast.LENGTH_SHORT).show();
-                            // Wizualne potwierdzenie (zmienia tło na jasnozielone)
-                            view.setBackgroundColor(0xFFE8F5E9);
+                            view.setBackgroundResource(R.color.success_highlight);
                             btnSave.setText("ZAKTUALIZUJ");
-
                             loggedExerciseIds.add(ex.getId());
                         } else {
                             Toast.makeText(this, "Błąd zapisu", Toast.LENGTH_SHORT).show();
@@ -177,12 +156,10 @@ public class SessionActivity extends AppCompatActivity {
             }
         });
 
-        // Dodajemy gotowy wiersz do kontenera na ekranie
         exercisesContainer.addView(view);
     }
 
     private void finishSession() {
-        // Sprawdź czy użytkownik zapisał wyniki dla wszystkich ćwiczeń
         if (loggedExerciseIds.size() < totalExercisesCount) {
             new android.app.AlertDialog.Builder(this)
                     .setTitle("Niedokończony trening")

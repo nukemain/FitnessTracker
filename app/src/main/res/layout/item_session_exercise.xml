@@ -36,7 +36,6 @@
                 android:layout_height="wrap_content"
                 android:hint="Serie"
                 android:inputType="number"
-                android:background="@android:drawable/edit_text"
                 android:layout_marginEnd="8dp"/>
 
             <EditText
@@ -46,7 +45,6 @@
                 android:layout_height="wrap_content"
                 android:hint="Powt."
                 android:inputType="number"
-                android:background="@android:drawable/edit_text"
                 android:layout_marginEnd="8dp"/>
 
             <EditText
@@ -55,8 +53,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:hint="Kg"
-                android:inputType="numberDecimal"
-                android:background="@android:drawable/edit_text"/>
+                android:inputType="numberDecimal"/>
         </LinearLayout>
 
         <Button
