@@ -150,6 +150,10 @@ public class FitnessSystemController implements IFitnessSystemController {
         return sessionProcess.logSet(currentUser.getId(), currentSessionId, exerciseId, sets, reps, weight);
     }
 
+    public boolean updateSet(int recordId, int sets, int reps, double weight) {
+        return model.getTrainingSessionDao().updateSessionRecord(recordId, sets, reps, weight);
+    }
+
     @Override
     public void addNoteToSession(String content) {
         if (currentSessionId == null) return;

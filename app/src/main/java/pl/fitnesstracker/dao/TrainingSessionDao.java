@@ -42,14 +42,12 @@ public class TrainingSessionDao {
         }
     }
 
-    // Zapis rekordu sesji (czyli obiekt SessionRecord)
     public boolean addSessionRecord(SessionRecord record) {
         String sql = "INSERT INTO RekordSesji (id_sesji, id_cwiczenia, liczba_serii, liczba_powtorzen, ciezar) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnector.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, record.getSessionId());
-
             stmt.setInt(2, record.getExerciseId());
             stmt.setInt(3, record.getSets());
             stmt.setInt(4, record.getReps());
@@ -62,11 +60,8 @@ public class TrainingSessionDao {
         }
     }
 
-    // Pobieranie rekordów dla sesji (z JOINem do ćwiczeń)
     public List<SessionRecord> getSessionRecords(int sessionId) {
         List<SessionRecord> records = new ArrayList<>();
-
-        // ZMIANA W SQL: Dodaliśmy c.typ i c.kategoria
         String sql = "SELECT r.id_rekordu, r.id_sesji, r.id_cwiczenia, r.liczba_serii, r.liczba_powtorzen, r.ciezar, " +
                 "c.nazwa_cwiczenia, c.typ, c.kategoria " +
                 "FROM RekordSesji r " +
@@ -90,7 +85,6 @@ public class TrainingSessionDao {
 
                 Exercise exInfo = new Exercise();
                 exInfo.setName(rs.getString("nazwa_cwiczenia"));
-
                 exInfo.setType(rs.getString("typ"));
                 exInfo.setCategory(rs.getString("kategoria"));
 
@@ -103,7 +97,6 @@ public class TrainingSessionDao {
         return records;
     }
 
-    // Dodanie notatki
     public void addNote(Note note) {
         String sql = "INSERT INTO Notatka (id_sesji, tresc_notatki) VALUES (?, ?)";
         try (Connection conn = DatabaseConnector.getInstance().getConnection();
@@ -130,7 +123,6 @@ public class TrainingSessionDao {
         return notes;
     }
 
-    // Metoda do pobierania historii zakończonych treningów
     public List<TrainingSession> getCompletedSessions(int userId) {
         List<TrainingSession> sessions = new ArrayList<>();
         String sql = "SELECT * FROM SesjaTreningowa WHERE id_uzytkownika = ? AND status LIKE 'Zako%' ORDER BY data_sesji DESC";
@@ -158,6 +150,23 @@ public class TrainingSessionDao {
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean updateSessionRecord(int recordId, int sets, int reps, double weight) {
+        String sql = "UPDATE RekordSesji SET liczba_serii = ?, liczba_powtorzen = ?, ciezar = ? WHERE id_rekordu = ?";
+        try (Connection conn = DatabaseConnector.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, sets);
+            stmt.setInt(2, reps);
+            stmt.setBigDecimal(3, java.math.BigDecimal.valueOf(weight));
+            stmt.setInt(4, recordId);
+
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

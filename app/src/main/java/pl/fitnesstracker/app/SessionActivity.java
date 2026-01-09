@@ -20,6 +20,7 @@ import pl.fitnesstracker.R;
 import pl.fitnesstracker.controller.FitnessSystemController;
 import pl.fitnesstracker.model.Exercise;
 import pl.fitnesstracker.model.PlanItem;
+import pl.fitnesstracker.model.SessionRecord;
 
 public class SessionActivity extends AppCompatActivity {
 
@@ -31,9 +32,7 @@ public class SessionActivity extends AppCompatActivity {
 
     private final FitnessSystemController controller = FitnessSystemController.getInstance();
     private int planId;
-
-    private final java.util.Set<Integer> loggedExerciseIds = new java.util.HashSet<>();
-    private int totalExercisesCount = 0;
+    private int editSessionId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,19 +46,26 @@ public class SessionActivity extends AppCompatActivity {
         btnFinishSession = findViewById(R.id.btnFinishSession);
 
         planId = getIntent().getIntExtra("PLAN_ID", -1);
-        String planName = getIntent().getStringExtra("PLAN_NAME");
-        tvPlanName.setText(planName != null ? planName : "Trening");
+        editSessionId = getIntent().getIntExtra("EDIT_SESSION_ID", -1);
 
-        startSessionAndLoadExercises();
+        if (editSessionId != -1) {
+            tvPlanName.setText("Edycja Treningu");
+            btnFinishSession.setText("ZAPISZ ZMIANY");
+            loadExistingSession();
+        } else {
+            String planName = getIntent().getStringExtra("PLAN_NAME");
+            tvPlanName.setText(planName != null ? planName : "Trening");
+            startNewSessionAndLoadExercises();
+        }
 
-        btnFinishSession.setOnClickListener(v -> finishSession());
+        btnFinishSession.setOnClickListener(v -> executeFinish());
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 new android.app.AlertDialog.Builder(SessionActivity.this)
-                        .setTitle("Wyjście z treningu")
-                        .setMessage("Czy na pewno chcesz przerwać trening? Postępy nie zostaną zapisane.")
+                        .setTitle("Wyjście")
+                        .setMessage("Czy na pewno chcesz wyjść? Niezapisane zmiany zostaną utracone.")
                         .setPositiveButton("Wyjdź", (dialog, which) -> finish())
                         .setNegativeButton("Zostań", null)
                         .show();
@@ -67,33 +73,39 @@ public class SessionActivity extends AppCompatActivity {
         });
     }
 
-    private void startSessionAndLoadExercises() {
+    private void startNewSessionAndLoadExercises() {
         Executors.newSingleThreadExecutor().execute(() -> {
             controller.startSession(planId);
-
             List<PlanItem> planItems = controller.getPlanDetails(planId);
-            totalExercisesCount = planItems.size();
-
             runOnUiThread(() -> {
                 timer.setBase(SystemClock.elapsedRealtime());
                 timer.start();
-
                 if (planItems.isEmpty()) {
-                    Toast.makeText(this, "Plan jest pusty! Dodaj ćwiczenia w edytorze.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Plan jest pusty!", Toast.LENGTH_LONG).show();
                 } else {
                     for (PlanItem item : planItems) {
-                        addExerciseView(item.getExerciseDetails());
+                        addExerciseView(item.getExerciseDetails(), null);
                     }
                 }
             });
         });
     }
 
-    private void addExerciseView(Exercise ex) {
+    private void loadExistingSession() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            List<SessionRecord> records = controller.getSessionDetails(editSessionId);
+            runOnUiThread(() -> {
+                timer.setVisibility(View.GONE); // Ukrywamy stoper w trybie edycji
+                for (SessionRecord record : records) {
+                    addExerciseView(record.getExerciseDetails(), record);
+                }
+            });
+        });
+    }
+
+    private void addExerciseView(Exercise ex, SessionRecord record) {
         if (ex == null) return;
-
         View view = getLayoutInflater().inflate(R.layout.item_session_exercise, null);
-
         TextView tvName = view.findViewById(R.id.tvExName);
         EditText etSets = view.findViewById(R.id.etExSets);
         EditText etReps = view.findViewById(R.id.etExReps);
@@ -103,17 +115,21 @@ public class SessionActivity extends AppCompatActivity {
         tvName.setText(ex.getName());
 
         boolean isCardio = "Cardio".equalsIgnoreCase(ex.getCategory()) || "Cardio".equalsIgnoreCase(ex.getType());
-
         if (isCardio) {
             etReps.setVisibility(View.GONE);
             etSets.setVisibility(View.GONE);
             etWeight.setHint("Czas (min)");
-            etWeight.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         } else {
-            etReps.setVisibility(View.VISIBLE);
-            etSets.setVisibility(View.VISIBLE);
             etWeight.setHint("Kg");
             etSets.setHint("Serie");
+        }
+
+        if (record != null) {
+            etSets.setText(String.valueOf(record.getSets()));
+            etReps.setText(String.valueOf(record.getReps()));
+            etWeight.setText(String.valueOf(record.getWeight()));
+            btnSave.setText("ZAKTUALIZUJ");
+            view.setBackgroundResource(R.color.success_highlight);
         }
 
         btnSave.setOnClickListener(v -> {
@@ -121,30 +137,26 @@ public class SessionActivity extends AppCompatActivity {
             String sReps = etReps.getText().toString();
             String sWeight = etWeight.getText().toString();
 
-            if (!isCardio && sSets.isEmpty()) {
-                etSets.setError("Wymagane"); return;
-            }
-            if (!isCardio && sReps.isEmpty()) {
-                etReps.setError("Wymagane"); return;
-            }
-            if (sWeight.isEmpty()) {
-                etWeight.setError("Wymagane"); return;
-            }
-
             try {
                 int sets = isCardio ? 1 : Integer.parseInt(sSets);
                 int reps = isCardio ? 0 : Integer.parseInt(sReps);
                 double weightOrTime = Double.parseDouble(sWeight);
 
                 Executors.newSingleThreadExecutor().execute(() -> {
-                    boolean success = controller.logSet(ex.getId(), sets, reps, weightOrTime);
+                    boolean success;
+                    if (editSessionId != -1 && record != null) {
+                        // Tryb edycji - aktualizujemy istniejący rekord
+                        success = controller.updateSet(record.getId(), sets, reps, weightOrTime);
+                    } else {
+                        // Tryb nowej sesji - dodajemy nowy rekord
+                        success = controller.logSet(ex.getId(), sets, reps, weightOrTime);
+                    }
 
                     runOnUiThread(() -> {
                         if (success) {
                             Toast.makeText(this, "Zapisano: " + ex.getName(), Toast.LENGTH_SHORT).show();
                             view.setBackgroundResource(R.color.success_highlight);
                             btnSave.setText("ZAKTUALIZUJ");
-                            loggedExerciseIds.add(ex.getId());
                         } else {
                             Toast.makeText(this, "Błąd zapisu", Toast.LENGTH_SHORT).show();
                         }
@@ -159,26 +171,20 @@ public class SessionActivity extends AppCompatActivity {
         exercisesContainer.addView(view);
     }
 
-    private void finishSession() {
-        if (loggedExerciseIds.size() < totalExercisesCount) {
-            new android.app.AlertDialog.Builder(this)
-                    .setTitle("Niedokończony trening")
-                    .setMessage("Nie zapisałeś wyników dla wszystkich ćwiczeń z planu ("
-                            + loggedExerciseIds.size() + "/" + totalExercisesCount + ").\n\nCzy na pewno chcesz zakończyć?")
-                    .setPositiveButton("Tak, zakończ", (dialog, which) -> executeFinish())
-                    .setNegativeButton("Wróć", null)
-                    .show();
-        } else {
-            executeFinish();
-        }
-    }
-
     private void executeFinish() {
+        if (editSessionId != -1) {
+            // W trybie edycji po prostu zamykamy aktywność
+            Toast.makeText(this, "Zmiany zapisane!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // Logika dla kończenia nowej sesji
         long elapsedMillis = SystemClock.elapsedRealtime() - timer.getBase();
-        int seconds = (int) (elapsedMillis / 1000) % 60;
-        int minutes = (int) ((elapsedMillis / (1000 * 60)) % 60);
-        int hours   = (int) ((elapsedMillis / (1000 * 60 * 60)) % 24);
-        String duration = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        String duration = String.format("%02d:%02d:%02d", 
+                (elapsedMillis / (1000*60*60)) % 24,
+                (elapsedMillis / (1000*60)) % 60,
+                (elapsedMillis / 1000) % 60);
 
         String noteContent = etSessionNote.getText().toString();
 
@@ -186,7 +192,6 @@ public class SessionActivity extends AppCompatActivity {
             if (!noteContent.isEmpty()) {
                 controller.addNoteToSession(noteContent);
             }
-
             controller.endSession(duration);
             runOnUiThread(this::finish);
         });

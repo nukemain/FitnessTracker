@@ -54,10 +54,27 @@
         android:padding="12dp"
         android:background="@color/surface"/>
 
-    <Button
-        android:id="@+id/btnClose"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ZAMKNIJ"
-        android:layout_marginTop="24dp"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="24dp">
+
+        <Button
+            android:id="@+id/btnEditSession"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="EDYTUJ"
+            android:backgroundTint="@color/accent"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="ZAMKNIJ"/>
+    </LinearLayout>
+
 </LinearLayout>

@@ -1,5 +1,6 @@
 package pl.fitnesstracker.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -33,6 +34,14 @@ public class SessionDetailsActivity extends AppCompatActivity {
         String date = getIntent().getStringExtra("SESSION_DATE");
         tvDateTitle.setText("Trening: " + date);
 
+        // Obsługa przycisku EDYTUJ
+        findViewById(R.id.btnEditSession).setOnClickListener(v -> {
+            Intent intent = new Intent(SessionDetailsActivity.this, SessionActivity.class);
+            intent.putExtra("EDIT_SESSION_ID", sessionId); // Przekazujemy ID sesji w trybie edycji
+            startActivity(intent);
+            finish(); // Zamykamy szczegóły, bo wrócimy tu po edycji
+        });
+
         loadDetails(sessionId);
     }
 
@@ -44,17 +53,14 @@ public class SessionDetailsActivity extends AppCompatActivity {
             runOnUiThread(() -> {
                 for(SessionRecord r : records) {
                     TextView tv = new TextView(this);
-                    // Pobieramy dane
                     String exerciseName = (r.getExerciseDetails() != null) ? r.getExerciseDetails().getName() : "Ćwiczenie";
                     String type = (r.getExerciseDetails() != null) ? r.getExerciseDetails().getType() : "";
                     String category = (r.getExerciseDetails() != null) ? r.getExerciseDetails().getCategory() : "";
                     boolean isCardio = "Cardio".equalsIgnoreCase(type) || "Cardio".equalsIgnoreCase(category);
 
                     if (isCardio) {
-                        // Wyświetlanie dla Cardio
                         tv.setText("• " + exerciseName + ": " + r.getWeight() + " min");
                     } else {
-                        // Wyświetlanie dla Siły
                         tv.setText("• " + exerciseName + ": "
                                 + r.getWeight() + "kg x " + r.getReps() + " (" + r.getSets() + " serie)");
                     }
@@ -63,7 +69,6 @@ public class SessionDetailsActivity extends AppCompatActivity {
                     recordsContainer.addView(tv);
                 }
 
-                // Wyświetl notatki
                 if(!notes.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
                     for(Note n : notes) sb.append("- ").append(n.getContent()).append("\n");
