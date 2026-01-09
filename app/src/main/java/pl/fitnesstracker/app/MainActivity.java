@@ -24,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Inicjalizacja kontrolera z kontekstem aplikacji
+        controller.initialize(getApplicationContext());
+
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         tvStatus = findViewById(R.id.tvStatus);
@@ -34,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
-            // Walidacja pól
             if (email.isEmpty()) {
                 etEmail.setError("Podaj email");
                 return;
@@ -44,17 +46,12 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            // Blokada przycisku na czas logowania
             btnLogin.setEnabled(false);
             tvStatus.setText("Logowanie...");
 
-            // --- POCZĄTEK WĄTKU W TLE ---
             Executors.newSingleThreadExecutor().execute(() -> {
                 try {
-                    // 1. Logowanie (Baza Danych)
                     boolean success = controller.login(email, password);
-
-                    // 2. Sprawdzenie powiadomień
                     boolean hasWorkout = false;
                     if (success) {
                         try {
@@ -64,23 +61,18 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    // Przekazujemy wyniki do wątku UI
                     boolean finalSuccess = success;
                     boolean finalHasWorkout = hasWorkout;
 
-                    // --- POWRÓT DO UI ---
                     runOnUiThread(() -> {
                         btnLogin.setEnabled(true);
 
                         if (finalSuccess) {
-                            // Jeśli był trening zaplanowany, pokaż powiadomienie
                             if (finalHasWorkout) {
                                 triggerAndroidNotification();
                             }
 
                             Toast.makeText(this, "Zalogowano pomyślnie!", Toast.LENGTH_SHORT).show();
-
-                            // Przejście do Dashboardu
                             startActivity(new Intent(MainActivity.this, DashboardActivity.class));
                             finish();
                         } else {
@@ -96,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
                     });
                 }
             });
-            // --- KONIEC WĄTKU W TLE ---
         });
 
         btnGoToRegister.setOnClickListener(v -> {

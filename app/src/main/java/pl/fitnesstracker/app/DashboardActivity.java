@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -66,7 +67,6 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, CreatePlanActivity.class))
         );
 
-        // Poprawiona weryfikacja uprawnień
         checkAdminAccess();
 
         refreshData();
@@ -83,7 +83,6 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void checkAdminAccess() {
         User currentUser = controller.getCurrentUser();
-        // Sprawdzamy rolę zamiast e-maila
         if (currentUser != null && "admin".equalsIgnoreCase(currentUser.getRole())) {
             btnAdminPanel.setVisibility(View.VISIBLE);
             btnAdminPanel.setOnClickListener(v -> startActivity(new Intent(this, AdminActivity.class)));
@@ -133,7 +132,11 @@ public class DashboardActivity extends AppCompatActivity {
             card.setLayoutParams(params);
             card.setRadius(16f);
             card.setCardElevation(8f);
-            card.setCardBackgroundColor(Color.WHITE);
+
+            // Pobranie koloru z motywu zamiast na sztywno
+            TypedValue typedValue = new TypedValue();
+            getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true);
+            card.setCardBackgroundColor(typedValue.data);
 
             LinearLayout content = new LinearLayout(this);
             content.setOrientation(LinearLayout.VERTICAL);

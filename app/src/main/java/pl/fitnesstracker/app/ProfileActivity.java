@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -38,29 +39,24 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        // Powiązanie widoków
         tvUserEmail = findViewById(R.id.tvUserEmail);
         tvUserWeight = findViewById(R.id.tvUserWeight);
         tvUserGoal = findViewById(R.id.tvUserGoal);
         btnEditGoal = findViewById(R.id.btnEditGoal);
-        btnEditWeight = findViewById(R.id.btnEditWeight); // Załóżmy, że dodałeś go w XML lub zrobimy klikalny tekst
+        btnEditWeight = findViewById(R.id.btnEditWeight);
         btnDeleteAccount = findViewById(R.id.btnDeleteAccount);
         btnAllStats = findViewById(R.id.btnAllStats);
         historyContainer = findViewById(R.id.historyContainer);
 
-        // Jeśli przycisk btnEditWeight nie istnieje w XML, możemy ustawić onClick na samym tvUserWeight
         if (btnEditWeight != null) {
             btnEditWeight.setOnClickListener(v -> showEditWeightDialog());
         } else {
             tvUserWeight.setOnClickListener(v -> showEditWeightDialog());
-            // Opcjonalnie dodaj informację, że można to kliknąć
             tvUserWeight.setHint("Kliknij, aby zmienić wagę");
         }
 
-        // Pobranie i wyświetlenie danych
         refreshData();
 
-        // Obsługa przycisków
         btnEditGoal.setOnClickListener(v -> showEditGoalDialog());
 
         btnAllStats.setOnClickListener(v ->
@@ -75,16 +71,12 @@ public class ProfileActivity extends AppCompatActivity {
             User u = controller.getCurrentUser();
             if (u == null) return;
             
-            // Pobierz historię
             List<TrainingSession> history = controller.getCompletedSessions(u.getId());
 
             runOnUiThread(() -> {
-                // Aktualizacja danych usera
                 tvUserEmail.setText("Email: " + u.getEmail());
                 tvUserWeight.setText("Waga: " + u.getWeight() + " kg");
                 tvUserGoal.setText("Cel: " + u.getTrainingGoal());
-
-                // Aktualizacja historii
                 renderHistoryList(history);
             });
         });
@@ -110,7 +102,6 @@ public class ProfileActivity extends AppCompatActivity {
                 try {
                     BigDecimal newWeight = new BigDecimal(weightStr);
                     Executors.newSingleThreadExecutor().execute(() -> {
-                        // Korzystamy z istniejącej metody w controllerze
                         controller.updateUserData(newWeight, controller.getCurrentUser().getTrainingGoal());
                         runOnUiThread(() -> {
                             Toast.makeText(this, "Waga zaktualizowana!", Toast.LENGTH_SHORT).show();
@@ -143,7 +134,11 @@ public class ProfileActivity extends AppCompatActivity {
             LinearLayout rowLayout = new LinearLayout(this);
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
             rowLayout.setGravity(Gravity.CENTER_VERTICAL);
-            rowLayout.setBackgroundColor(Color.WHITE);
+
+            // Pobranie koloru z motywu
+            TypedValue typedValue = new TypedValue();
+            getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true);
+            rowLayout.setBackgroundColor(typedValue.data);
             rowLayout.setPadding(20, 20, 20, 20);
 
             LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(

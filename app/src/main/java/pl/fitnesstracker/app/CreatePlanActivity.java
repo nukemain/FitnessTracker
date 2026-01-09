@@ -44,7 +44,6 @@ public class CreatePlanActivity extends AppCompatActivity {
 
         loadExercises();
 
-        // Dodawanie do listy tymczasowej
         btnAddToList.setOnClickListener(v -> {
             int idx = spinnerExercises.getSelectedItemPosition();
             if (idx >= 0 && !availableExercises.isEmpty()) {
@@ -54,22 +53,25 @@ public class CreatePlanActivity extends AppCompatActivity {
             }
         });
 
-        // Zapis finalny
         btnSaveAll.setOnClickListener(v -> {
+            btnSaveAll.setEnabled(false);
+
             String name = etPlanName.getText().toString().trim();
 
             if (name.isEmpty()) {
-                etPlanName.setError("Podaj nazwę!"); return;
+                etPlanName.setError("Podaj nazwę!");
+                btnSaveAll.setEnabled(true);
+                return;
             }
             if (tempPlanList.isEmpty()) {
-                Toast.makeText(this, "Dodaj min. 1 ćwiczenie!", Toast.LENGTH_SHORT).show(); return;
+                Toast.makeText(this, "Dodaj min. 1 ćwiczenie!", Toast.LENGTH_SHORT).show();
+                btnSaveAll.setEnabled(true);
+                return;
             }
 
             Executors.newSingleThreadExecutor().execute(() -> {
-                // 1. Utwórz plan
                 Integer planId = controller.createWorkoutPlan(name, "Utworzony w aplikacji");
 
-                // 2. Dodaj ćwiczenia z listy (domyślne wartości 3 serie / 10 powt)
                 for (Exercise ex : tempPlanList) {
                     controller.addExerciseToPlan(planId, ex.getId(), 3, 10, 0);
                 }
@@ -81,7 +83,6 @@ public class CreatePlanActivity extends AppCompatActivity {
             });
         });
 
-        // Obsługa przycisku "+"
         btnNewExercise.setOnClickListener(v -> showAddExerciseDialog());
     }
 
@@ -120,7 +121,6 @@ public class CreatePlanActivity extends AppCompatActivity {
         inputName.setHint("Nazwa ćwiczenia");
         layout.addView(inputName);
 
-        // Wybór typu: Siła vs Cardio
         final Spinner typeSpinner = new Spinner(this);
         String[] types = {"Siła", "Cardio"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, types);
@@ -143,7 +143,7 @@ public class CreatePlanActivity extends AppCompatActivity {
                         Toast.makeText(this, "Błąd dodawania", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "Dodano!", Toast.LENGTH_SHORT).show();
-                        loadExercises(); // Odświeżamy listę
+                        loadExercises();
                     }
                 });
             });

@@ -1,48 +1,80 @@
 package pl.fitnesstracker.controller;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import androidx.core.app.NotificationCompat;
 import pl.fitnesstracker.model.FitnessModel;
 import pl.fitnesstracker.model.Notification;
 import pl.fitnesstracker.model.User;
 import pl.fitnesstracker.model.WorkoutPlan;
+import pl.fitnesstracker.app.MainActivity;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
-import java.time.format.TextStyle;
 import java.util.List;
-import java.util.Locale;
 
 public class NotificationService {
     private final FitnessModel model;
+    private Context context; 
 
     public NotificationService(FitnessModel model) {
         this.model = model;
     }
 
-    // 1. Powiadomienie o osiągnięciach (wywoływane po treningu/rekordzie)
-    public void createAchievementNotification(int userId, String achievementName) {
-        Notification note = new Notification();
-        note.setUserId(Integer.valueOf(userId));
-        note.setType("Osiągnięcie");
-        note.setMessage("Gratulacje! Osiągnięto cel: " + achievementName);
-        model.getNotificationDao().createNotification(note);
-        System.out.println("[NotificationService] Wysłano powiadomienie o osiągnięciu do User ID: " + userId);
+    public void setContext(Context context) {
+        this.context = context.getApplicationContext();
     }
 
-    // 2. Powiadomienie o zaplanowanym treningu (sprawdzane np. przy logowaniu)
+    public void createAchievementNotification(int userId, String title, String message) {
+        if (context == null) return; 
+
+        Notification note = new Notification();
+        note.setUserId(userId);
+        note.setType("Osiągnięcie");
+        note.setMessage(title + ": " + message);
+        model.getNotificationDao().createNotification(note);
+
+        showNotification(title, message);
+    }
+
+    private void showNotification(String title, String message) {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelId = "achievement_channel";
+
+        NotificationChannel channel = new NotificationChannel(
+                channelId,
+                "Osiągnięcia",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        notificationManager.createNotificationChannel(channel);
+
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(android.R.drawable.star_on)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
+    }
+
     public void checkAndNotifyScheduledWorkout(User user) {
-        // Pobieramy dzisiejszy dzień tygodnia
         DayOfWeek today = LocalDate.now().getDayOfWeek();
         String polishDayName = mapDayToPolish(today);
 
-        // Sprawdzamy plany użytkownika
         List<WorkoutPlan> plans = model.getWorkoutPlanDao().getPlansByUser(user.getId());
 
         for (WorkoutPlan plan : plans) {
-            // Sprawdzamy, czy plan jest przypisany do dzisiejszego dnia
             boolean isScheduledToday = model.getDayOfWeekDao().isPlanScheduledForDay(plan.getId(), polishDayName);
 
             if (isScheduledToday) {
-                // Sprawdzamy czy nie ma już powiadomienia na dziś, żeby nie spamować
                 boolean alreadyNotified = model.getNotificationDao().hasNotificationForToday(user.getId(), "Przypomnienie");
 
                 if (!alreadyNotified) {
@@ -51,14 +83,12 @@ public class NotificationService {
                     note.setType("Przypomnienie");
                     note.setMessage("Dzisiaj masz zaplanowany trening: " + plan.getPlanName());
                     model.getNotificationDao().createNotification(note);
-                    System.out.println("[NotificationService] Przypomniano o treningu: " + plan.getPlanName());
                 }
             }
         }
     }
 
     private String mapDayToPolish(DayOfWeek day) {
-        // Proste mapowanie na nazwy w bazie
         switch (day) {
             case MONDAY: return "Poniedziałek";
             case TUESDAY: return "Wtorek";
@@ -72,14 +102,8 @@ public class NotificationService {
     }
 
     public void updateDailyWorkoutNotification(int userId) {
-        // 1. Sprawdź czy jest powiadomienie o typie "Przypomnienie" z dzisiaj
-        // To wymaga metody w DAO, np. findNotificationByTypeAndDate
-        // Dla uproszczenia w tym projekcie: po prostu usuwamy stare przypomnienia i dodajemy nowe "Sukces"
-
-        // Usuń stare przypomnienia
         model.getNotificationDao().deleteNotificationsByType(userId, "Przypomnienie");
 
-        // Dodaj nowe powiadomienie
         Notification note = new Notification();
         note.setUserId(userId);
         note.setType("Info");

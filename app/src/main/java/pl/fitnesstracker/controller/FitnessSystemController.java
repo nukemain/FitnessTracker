@@ -1,5 +1,6 @@
 package pl.fitnesstracker.controller;
 
+import android.content.Context;
 import pl.fitnesstracker.model.*;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -17,14 +18,13 @@ public class FitnessSystemController implements IFitnessSystemController {
     private User currentUser;
     private Integer currentSessionId;
 
-    // --- SINGLETON ---
     private static FitnessSystemController instance;
 
-    public FitnessSystemController() {
+    private FitnessSystemController() {
         this.model = new FitnessModel();
-        this.sessionProcess = new SessionRecordingProcess(model);
-        this.planProcess = new WorkoutPlanModificationProcess(model);
         this.notificationService = new NotificationService(model);
+        this.sessionProcess = new SessionRecordingProcess(model, notificationService);
+        this.planProcess = new WorkoutPlanModificationProcess(model);
         this.adminDeletionProcess = new AdminDeletionProcess(model, notificationService);
     }
 
@@ -35,7 +35,9 @@ public class FitnessSystemController implements IFitnessSystemController {
         return instance;
     }
 
-    // --- SEKCJA: UŻYTKOWNIK ---
+    public void initialize(Context context) {
+        this.notificationService.setContext(context);
+    }
 
     @Override
     public boolean login(String email, String password) {
@@ -73,8 +75,6 @@ public class FitnessSystemController implements IFitnessSystemController {
         }
     }
 
-    // --- SEKCJA: PLANY TRENINGOWE ---
-
     @Override
     public Integer createWorkoutPlan(String name, String description) {
         if (currentUser == null) return null;
@@ -89,11 +89,9 @@ public class FitnessSystemController implements IFitnessSystemController {
 
     @Override
     public boolean addExerciseToPlan(Integer planId, Integer exerciseId, int sets, int reps, double weight) {
-        // Ta metoda domyślnie używa ExistingExStrategy (ustawionej w konstruktorze procesu)
         return planProcess.addExercise(planId, exerciseId, sets, reps, weight);
     }
 
-    // Specjalna metoda do dodawania WŁASNYCH ćwiczeń (używa NewExStrategy)
     public Integer addCustomExerciseToLibrary(String name, String description, String category, String type) {
         if (currentUser == null) return null;
 
@@ -124,8 +122,6 @@ public class FitnessSystemController implements IFitnessSystemController {
     public void deleteWorkoutPlan(int planId) {
         model.getWorkoutPlanDao().deletePlan(planId);
     }
-
-    // --- SEKCJA: SESJA TRENINGOWA ---
 
     @Override
     public Integer startSession(Integer planId) {
@@ -164,8 +160,6 @@ public class FitnessSystemController implements IFitnessSystemController {
         model.getTrainingSessionDao().deleteSession(sessionId);
     }
 
-    // --- SEKCJA: DANE, STATYSTYKI I HISTORIA ---
-
     @Override
     public Statistics getUserStatistics() {
         if (currentUser == null) return new Statistics();
@@ -182,7 +176,6 @@ public class FitnessSystemController implements IFitnessSystemController {
         return model.getTrainingSessionDao().getCompletedSessions(userId);
     }
 
-    // Dla historii sesji
     public List<SessionRecord> getSessionDetails(int sessionId) {
         return model.getTrainingSessionDao().getSessionRecords(sessionId);
     }
@@ -190,18 +183,15 @@ public class FitnessSystemController implements IFitnessSystemController {
         return model.getTrainingSessionDao().getSessionNotes(sessionId);
     }
 
-    // Dla statystyk ćwiczeń
     public List<ExerciseStatsDTO> getAllExerciseStats() {
         if (currentUser == null) return Collections.emptyList();
         return model.getStatisticsDao().getExerciseStats(currentUser.getId());
     }
 
-    // Dla weryfikacji powiadomień (zwraca true jeśli dziś jest trening)
     public boolean checkDailyNotification() {
         if(currentUser == null) return false;
-        notificationService.checkAndNotifyScheduledWorkout(currentUser); // To generuje rekord w bazie
+        notificationService.checkAndNotifyScheduledWorkout(currentUser);
         List<Notification> notifs = getUserNotifications();
-        // Sprawdzamy czy mamy "świeże" powiadomienie o treningu
         return notifs.stream().anyMatch(n -> n.getMessage().contains("Dzisiaj masz"));
     }
 
@@ -212,9 +202,6 @@ public class FitnessSystemController implements IFitnessSystemController {
         }
     }
 
-    // --- SEKCJA: ADMINISTRACJA ---
-
-    // NOWOŚĆ: Pobieranie listy wszystkich użytkowników (dla Admina)
     public List<User> getAllUsers() {
         if (currentUser == null) return Collections.emptyList();
         return model.getUserDao().getAllUsers();

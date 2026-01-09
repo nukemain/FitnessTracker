@@ -51,7 +51,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:layout_marginBottom="12dp"
-                    android:background="#EEEEEE" />
+                    android:background="@color/surface" />
 
                 <Button
                     android:id="@+id/btnNewExercise"
