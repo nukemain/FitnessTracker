@@ -127,7 +127,7 @@ public class FitnessSystemController implements IFitnessSystemController {
     public Integer startSession(Integer planId) {
         if (currentUser == null || currentSessionId != null) return null;
 
-        sessionProcess.determineStrategy(currentUser);
+        //sessionProcess.determineStrategy(currentUser);
         Integer sessionId = model.getTrainingSessionDao().startSession(currentUser.getId(), planId);
 
         if (sessionId != null) {

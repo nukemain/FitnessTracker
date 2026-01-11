@@ -12,28 +12,15 @@ import java.util.Optional;
 public class SessionRecordingProcess {
     private final FitnessModel model;
     private final NotificationService notificationService;
-    private ISessionCalculationStrategy strategy;
+
 
     private final List<String> newRecordExerciseNames = new ArrayList<>();
 
     public SessionRecordingProcess(FitnessModel model, NotificationService notificationService) {
         this.model = model;
         this.notificationService = notificationService;
-        this.strategy = new StrengthStrategy();
     }
 
-    public void determineStrategy(User user) {
-        this.newRecordExerciseNames.clear();
-
-        String goal = user.getTrainingGoal();
-        if (goal != null && (goal.equalsIgnoreCase("Cardio") || goal.equalsIgnoreCase("Utrata wagi"))) {
-            this.strategy = new CardioStrategy();
-            System.out.println("-> Wybrano strategię: CARDIO (Liczenie kalorii)");
-        } else {
-            this.strategy = new StrengthStrategy();
-            System.out.println("-> Wybrano strategię: SIŁA (Liczenie 1RM)");
-        }
-    }
 
     public boolean logSet(Integer userId, Integer sessionId, Integer exerciseId, int sets, int reps, double weight) {
         BigDecimal newWeight = BigDecimal.valueOf(weight);

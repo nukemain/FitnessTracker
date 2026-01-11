@@ -6,11 +6,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import androidx.core.app.NotificationCompat;
+
+import pl.fitnesstracker.app.ExerciseStatsActivity;
 import pl.fitnesstracker.model.FitnessModel;
 import pl.fitnesstracker.model.Notification;
 import pl.fitnesstracker.model.User;
 import pl.fitnesstracker.model.WorkoutPlan;
-import pl.fitnesstracker.app.MainActivity;
 
 import java.time.LocalDate;
 import java.time.DayOfWeek;
@@ -51,7 +52,7 @@ public class NotificationService {
         );
         notificationManager.createNotificationChannel(channel);
 
-        Intent intent = new Intent(context, MainActivity.class);
+        Intent intent = new Intent(context, ExerciseStatsActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
