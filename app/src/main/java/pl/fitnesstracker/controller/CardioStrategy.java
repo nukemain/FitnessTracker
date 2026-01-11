@@ -16,19 +16,18 @@ public class CardioStrategy implements ISessionCalculationStrategy {
     @Override
     public void finalizeSessionStats(int userId, String duration) {
         // Format duration z Postgre to np. "01:15:00" lub "1 hour".
-        // Uprościmy to parsując format HH:MM:SS, który wysyłamy z Javy.
         int minutes = parseDurationToMinutes(duration);
 
         // Wzór: ok. 8 kcal na minutę (średnia intensywność)
         int caloriesBurned = minutes * 8;
 
         updateCalories(userId, caloriesBurned);
-        System.out.println("[STRATEGIA CARDIO] Czas: " + minutes + " min. Spalono ok. " + caloriesBurned + " kcal.");
+        //System.out.println("[STRATEGIA CARDIO] Czas: " + minutes + " min. Spalono ok. " + caloriesBurned + " kcal.");
     }
 
     private int parseDurationToMinutes(String duration) {
         try {
-            // Zakładamy format HH:MM:SS
+            // format HH:MM:SS
             String[] parts = duration.split(":");
             if (parts.length == 3) {
                 int h = Integer.parseInt(parts[0]);

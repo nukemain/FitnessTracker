@@ -83,6 +83,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showEditWeightDialog() {
+        // zmiana wagi
+        // zmiany wzrostu nie ma (z oczywistych powodów)
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Zaktualizuj Wagę");
 
@@ -135,7 +137,7 @@ public class ProfileActivity extends AppCompatActivity {
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
             rowLayout.setGravity(Gravity.CENTER_VERTICAL);
 
-            // Pobranie koloru z motywu
+            // Pobranie koloru z motywu no bo mozemy mieć ciemny
             TypedValue typedValue = new TypedValue();
             getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true);
             rowLayout.setBackgroundColor(typedValue.data);

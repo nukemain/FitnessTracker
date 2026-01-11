@@ -15,7 +15,6 @@ public class Note {
         this.content = content;
     }
 
-    // Gettery i Settery
     public Integer getId() {
         return id;
     }

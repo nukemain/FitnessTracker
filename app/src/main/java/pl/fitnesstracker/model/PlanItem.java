@@ -7,12 +7,11 @@ public class PlanItem {
     private Integer planId;
     private Integer exerciseId;
 
-    // To pole wypełnimy w DAO wykonując JOIN do tabeli Cwiczenie
     private Exercise exerciseDetails;
 
-    private Integer sets;       // liczba_serii
-    private Integer reps;       // liczba_powtorzen
-    private BigDecimal weight;  // ciezar
+    private Integer sets;
+    private Integer reps;
+    private BigDecimal weight;
 
     public PlanItem() {}
 
@@ -24,7 +23,6 @@ public class PlanItem {
         this.weight = weight;
     }
 
-    // Gettery i Settery
 
     public Integer getId() {
         return id;

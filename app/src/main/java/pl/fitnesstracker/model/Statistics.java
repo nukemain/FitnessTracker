@@ -6,15 +6,14 @@ import java.sql.Timestamp;
 public class Statistics {
     private Integer id;
     private Integer userId;
-    private Timestamp lastUpdate;     // data_aktualizacji
-    private BigDecimal maxWeight;     // ciezar
-    private Integer totalReps;        // liczba_powtorzen
-    private Integer totalWorkouts;    // liczba_treningow
-    private Integer totalRecords;     // liczba_rekordow
+    private Timestamp lastUpdate;
+    private BigDecimal maxWeight;
+    private Integer totalReps;
+    private Integer totalWorkouts;
+    private Integer totalRecords;
     private Integer caloriesBurned;
     public Statistics() {}
 
-    // Gettery i Settery
     public Integer getId() {
         return id;
     }

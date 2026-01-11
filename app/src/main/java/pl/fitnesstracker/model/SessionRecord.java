@@ -13,7 +13,6 @@ public class SessionRecord {
 
     public SessionRecord() {}
 
-    // Gettery i Settery
     public Integer getId() {
         return id;
     }

@@ -8,6 +8,10 @@ public class DatabaseConnector {
     private static DatabaseConnector instance;
     private final Connection connection;
 
+    // dane do połaczenia z bazą danych sę celowo zhardkodowane
+    // pozwala to na połaczenie z nasza zahostowaną bazą danych
+    // inaczej należało by samemu zahostować bazę
+    // w prawdziwym projekcie mającym być wykorzystywanym przez faktycznych klientów to nie miało by miejsca
     private static final String URL = "jdbc:postgresql://pg-3cdfa918-zelgith-ccf4.c.aivencloud.com:12924/defaultdb?sslmode=require&currentSchema=trening_app";
     private static final String USER = "app_admin";
     private static final String PASSWORD = "admin123";

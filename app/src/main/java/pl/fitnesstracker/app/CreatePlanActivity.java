@@ -110,6 +110,7 @@ public class CreatePlanActivity extends AppCompatActivity {
     }
 
     private void showAddExerciseDialog() {
+        // To od customowych ćwiczeń
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Stwórz Własne Ćwiczenie");
 

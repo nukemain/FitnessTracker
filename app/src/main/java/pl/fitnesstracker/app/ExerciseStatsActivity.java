@@ -49,10 +49,11 @@ public class ExerciseStatsActivity extends AppCompatActivity {
                     boolean isCardio = "Cardio".equalsIgnoreCase(s.getType());
 
                     if (isCardio) {
-                        // Cardio: Wyświetlamy tylko Max Czas
+                        // Cardio tylko czas
                         data.setText("⏱ Rekord Czasu: " + s.getMaxWeight() + " min");
                     } else {
-                        // Siła: Wyświetlamy Max Ciężar i Objętość
+                        // Siła Max Ciężar i Objętość
+                        // emoji w kodzie wyglądaja dziwnie ale działa
                         data.setText("🏆 Max Ciężar: " + s.getMaxWeight() + " kg\n" +
                                 "🏋️ Max Objętość: " + s.getMaxVolume() + " kg");
                     }

@@ -3,7 +3,7 @@ package pl.fitnesstracker.model;
 public class DayOfWeek {
     private Integer id;
     private Integer planId;
-    private String dayName; // np. "Poniedziałek"
+    private String dayName;
 
     public DayOfWeek() {}
 
@@ -12,7 +12,6 @@ public class DayOfWeek {
         this.dayName = dayName;
     }
 
-    // Gettery i Settery
     public Integer getId() {
         return id;
     }

@@ -12,7 +12,7 @@ public class ExistingExStrategy implements IAddExerciseStrategy {
 
     @Override
     public Integer addExerciseToPlan(int exerciseId) {
-        System.out.println("[Strategy] Weryfikacja istniejącego ćwiczenia ID: " + exerciseId);
+        //System.out.println("[Strategy] Weryfikacja istniejącego ćwiczenia ID: " + exerciseId);
 
         boolean exists = model.getExerciseDao().exerciseExists(exerciseId);
 

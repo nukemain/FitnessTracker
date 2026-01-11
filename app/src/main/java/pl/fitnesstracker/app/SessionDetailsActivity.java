@@ -39,7 +39,7 @@ public class SessionDetailsActivity extends AppCompatActivity {
             Intent intent = new Intent(SessionDetailsActivity.this, SessionActivity.class);
             intent.putExtra("EDIT_SESSION_ID", sessionId); // Przekazujemy ID sesji w trybie edycji
             startActivity(intent);
-            finish(); // Zamykamy szczegóły, bo wrócimy tu po edycji
+            finish();
         });
 
         loadDetails(sessionId);
@@ -59,7 +59,7 @@ public class SessionDetailsActivity extends AppCompatActivity {
                     boolean isCardio = "Cardio".equalsIgnoreCase(type) || "Cardio".equalsIgnoreCase(category);
 
                     if (isCardio) {
-                        tv.setText("• " + exerciseName + ": " + r.getWeight() + " min");
+                        tv.setText("• " + exerciseName + ": " + r.getWeight() + " min"); // cardio jak zwykle tylko  z minutami
                     } else {
                         tv.setText("• " + exerciseName + ": "
                                 + r.getWeight() + "kg x " + r.getReps() + " (" + r.getSets() + " serie)");

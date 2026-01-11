@@ -16,7 +16,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Uruchamiamy wątek w tle, bo dostęp do bazy może potrwać
+        // Uruchamiamy wątek w tle bo dostęp do bazy może potrwać
         new Thread(() -> {
             FitnessSystemController controller = FitnessSystemController.getInstance();
 
@@ -31,7 +31,6 @@ public class NotificationReceiver extends BroadcastReceiver {
     private void showNotification(Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // 1. Tworzenie kanału powiadomień
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
                 "Przypomnienia o treningu",
@@ -40,14 +39,13 @@ public class NotificationReceiver extends BroadcastReceiver {
         channel.setDescription("Powiadomienia o zaplanowanych treningach");
         notificationManager.createNotificationChannel(channel);
 
-        // 2. Co się stanie jak klikniesz w powiadomienie (Otwórz Dashboard)
+        // Co się stanie jak klikniesz w powiadomienie
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context, 0, intent, PendingIntent.FLAG_IMMUTABLE
         );
 
-        // 3. Budowanie powiadomienia
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle("Czas na trening!")
@@ -56,7 +54,6 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
-        // 4. Wyświetlenie
         notificationManager.notify(1001, builder.build());
     }
 }

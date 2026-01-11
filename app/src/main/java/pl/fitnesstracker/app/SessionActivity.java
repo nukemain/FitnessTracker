@@ -173,7 +173,7 @@ public class SessionActivity extends AppCompatActivity {
 
     private void executeFinish() {
         if (editSessionId != -1) {
-            // W trybie edycji po prostu zamykamy aktywność
+            // W trybie edycji po prostu zamykamy
             Toast.makeText(this, "Zmiany zapisane!", Toast.LENGTH_SHORT).show();
             finish();
             return;

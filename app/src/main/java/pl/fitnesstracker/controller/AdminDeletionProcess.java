@@ -12,8 +12,7 @@ public class AdminDeletionProcess {
     }
 
     public void executeUserDeletion(int userId) {
-        // Tu mogłaby być logika np. wysłania maila przed usunięciem
-        // Na razie usuwamy bezpośrednio
+        // usuwanko użytkownika
         boolean success = model.getUserDao().deleteUser(userId);
         if (success) {
             System.out.println("[AdminProcess] Użytkownik ID " + userId + " został usunięty (wraz z danymi kaskadowo).");

@@ -48,9 +48,6 @@ public class SessionRecordingProcess {
                 }
             }
         } else {
-            // Jeśli nie ma starego rekordu, to ten jest pierwszy, więc też jest rekordem.
-            // W idealnym świecie pobralibyśmy tu nazwę ćwiczenia po ID.
-            // Na razie dodajemy ogólną informację, jeśli to pierwszy rekord.
             if (newRecordExerciseNames.isEmpty()) { 
                 newRecordExerciseNames.add("nowym ćwiczeniu");
             }

@@ -65,6 +65,7 @@ public class UserDao {
     }
 
     public Optional<User> login(String email, String rawPassword) {
+        //haslo zakodowane, admina nalezy dodac do bazy przez update w pgadminie
         String sql = "SELECT * FROM Uzytkownik WHERE email = ?";
 
         try (Connection conn = DatabaseConnector.getInstance().getConnection();

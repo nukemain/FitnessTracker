@@ -23,7 +23,6 @@ public class ExerciseDao {
 
     // Dodanie nowego ćwiczenia (dla NewExStrategy)
     public Integer addCustomExercise(Exercise exercise) {
-        // Uwzględniamy kolumnę 'opis' w zapytaniu
         String sql = "INSERT INTO Cwiczenie (id_uzytkownika, nazwa_cwiczenia, opis, kategoria, typ) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnector.getInstance().getConnection();
@@ -32,7 +31,6 @@ public class ExerciseDao {
             stmt.setInt(1, exercise.getUserId());
             stmt.setString(2, exercise.getName());
 
-            // Tutaj przekazujemy opis wprowadzony przez użytkownika
             stmt.setString(3, exercise.getDescription());
 
             stmt.setString(4, exercise.getCategory());

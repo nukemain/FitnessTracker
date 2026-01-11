@@ -133,7 +133,7 @@ public class DashboardActivity extends AppCompatActivity {
             card.setRadius(16f);
             card.setCardElevation(8f);
 
-            // Pobranie koloru z motywu zamiast na sztywno
+            // Kolor z motywu zamiast hardcoded, na tryb ciemny
             TypedValue typedValue = new TypedValue();
             getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true);
             card.setCardBackgroundColor(typedValue.data);

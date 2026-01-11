@@ -12,7 +12,7 @@ public class WorkoutPlan {
 
     public WorkoutPlan() {}
 
-    // Gettery i Settery
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 

@@ -99,7 +99,6 @@ public class RegisterActivity extends AppCompatActivity {
                     btnRegister.setEnabled(true);
                 } else {
                     Toast.makeText(this, "Brak połączenia z bazą danych! Spróbuj ponownie później.", Toast.LENGTH_LONG).show();
-                    // Możemy zostawić przycisk wyłączony lub pozwolić spróbować ponownie po kliknięciu
                     btnRegister.setEnabled(false);
                 }
             });

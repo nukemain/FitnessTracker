@@ -14,14 +14,12 @@ public class DayOfWeekDao {
         String insertSql = "INSERT INTO DzienTygodnia (id_planu, nazwa_dnia) VALUES (?, ?)";
 
         try (Connection conn = DatabaseConnector.getInstance().getConnection()) {
-            // 1. Czyszczenie
             try (PreparedStatement stmt = conn.prepareStatement(cleanSql)) {
                 stmt.setInt(1, planId);
                 stmt.setString(2, dayName);
                 stmt.executeUpdate();
             }
 
-            // 2. Dodawanie
             try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
                 stmt.setInt(1, planId);
                 stmt.setString(2, dayName);

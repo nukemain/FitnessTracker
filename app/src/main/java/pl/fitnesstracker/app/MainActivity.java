@@ -13,6 +13,7 @@ import pl.fitnesstracker.R;
 import pl.fitnesstracker.controller.FitnessSystemController;
 
 public class MainActivity extends AppCompatActivity {
+    // Ekran logowania
 
     private EditText etEmail, etPassword;
     private TextView tvStatus, btnGoToRegister;
@@ -24,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Inicjalizacja kontrolera z kontekstem aplikacji
         controller.initialize(getApplicationContext());
 
         etEmail = findViewById(R.id.etEmail);
@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void triggerAndroidNotification() {
+        //odpalanie powiadomienia jesli jest trening na dzis - odpalane po zalogowaniu( z warunkeim) dlatego jest tu
         String channelId = "fitness_channel";
         android.app.NotificationChannel channel = new android.app.NotificationChannel(
                 channelId, "Treningi", android.app.NotificationManager.IMPORTANCE_HIGH);

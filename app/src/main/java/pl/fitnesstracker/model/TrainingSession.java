@@ -12,7 +12,7 @@ public class TrainingSession {
 
     public TrainingSession() {}
 
-    // Gettery i Settery
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
