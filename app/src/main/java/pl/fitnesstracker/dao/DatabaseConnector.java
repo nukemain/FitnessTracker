@@ -12,9 +12,9 @@ public class DatabaseConnector {
     // pozwala to na połaczenie z nasza zahostowaną bazą danych
     // inaczej należało by samemu zahostować bazę
     // w prawdziwym projekcie mającym być wykorzystywanym przez faktycznych klientów to nie miało by miejsca
-    private static final String URL = "jdbc:postgresql://pg-3cdfa918-zelgith-ccf4.c.aivencloud.com:12924/defaultdb?sslmode=require&currentSchema=trening_app";
-    private static final String USER = "app_admin";
-    private static final String PASSWORD = "admin123";
+    private static final String URL = ""; //not on github lmao
+    private static final String USER = "";
+    private static final String PASSWORD = "";
     private DatabaseConnector() {
         try {
             Class.forName("org.postgresql.Driver");
