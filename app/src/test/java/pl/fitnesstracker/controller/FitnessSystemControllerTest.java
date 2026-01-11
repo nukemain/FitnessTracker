@@ -28,6 +28,8 @@ public class FitnessSystemControllerTest {
     private UserDao userDao;
     @Mock
     private NotificationService notificationService;
+    @Mock
+    private WorkoutPlanModificationProcess planProcess;
 
     private FitnessSystemController controller;
 
@@ -37,6 +39,7 @@ public class FitnessSystemControllerTest {
 
         setField(controller, "model", model);
         setField(controller, "notificationService", notificationService);
+        setField(controller, "planProcess", planProcess);
 
         when(model.getUserDao()).thenReturn(userDao);
     }
@@ -91,6 +94,42 @@ public class FitnessSystemControllerTest {
         assertFalse(result);
     }
 
+    @Test
+    public void logout_shouldClearCurrentUserAndSession() throws Exception {
+        User user = new User();
+        setField(controller, "currentUser", user);
+        setField(controller, "currentSessionId", 999);
+
+        controller.logout();
+
+        assertNull(controller.getCurrentUser());
+        Field sessionIdField = controller.getClass().getDeclaredField("currentSessionId");
+        sessionIdField.setAccessible(true);
+        assertNull(sessionIdField.get(controller));
+    }
+
+    @Test
+    public void createWorkoutPlan_whenUserLoggedIn_shouldSucceed() throws Exception {
+        User loggedInUser = new User();
+        loggedInUser.setId(123);
+        setField(controller, "currentUser", loggedInUser);
+        when(planProcess.createPlan(123, "My new plan", "For chest")).thenReturn(456);
+
+        Integer planId = controller.createWorkoutPlan("My new plan", "For chest");
+
+        assertEquals(Integer.valueOf(456), planId);
+        verify(planProcess).createPlan(123, "My new plan", "For chest");
+    }
+
+    @Test
+    public void createWorkoutPlan_whenUserNotLoggedIn_shouldReturnNull() throws Exception {
+        setField(controller, "currentUser", null);
+
+        Integer planId = controller.createWorkoutPlan("My new plan", "For chest");
+
+        assertNull(planId);
+        verify(planProcess, never()).createPlan(anyInt(), anyString(), anyString());
+    }
 
     private void setField(Object target, String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
         Field field = target.getClass().getDeclaredField(fieldName);
