@@ -28,6 +28,15 @@ public class FitnessSystemController implements IFitnessSystemController {
         this.adminDeletionProcess = new AdminDeletionProcess(model, notificationService);
     }
 
+    // POPRAWKA: Konstruktor musi być publiczny, aby był widoczny z innych pakietów
+    public FitnessSystemController(FitnessModel testModel) {
+        this.model = testModel;
+        this.notificationService = null; 
+        this.sessionProcess = null;
+        this.planProcess = null;
+        this.adminDeletionProcess = null;
+    }
+
     public static synchronized FitnessSystemController getInstance() {
         if (instance == null) {
             instance = new FitnessSystemController();
@@ -40,24 +49,27 @@ public class FitnessSystemController implements IFitnessSystemController {
     }
 
     @Override
-    public boolean login(String email, String password) {
+    public boolean login(String email, String password) {//
         Optional<User> userOpt = model.getUserDao().login(email, password);
         if (userOpt.isPresent()) {
             this.currentUser = userOpt.get();
-            notificationService.checkAndNotifyScheduledWorkout(currentUser);
+            // W teście notificationService będzie nullem, więc pomijamy
+            if (notificationService != null) {
+                notificationService.checkAndNotifyScheduledWorkout(currentUser);
+            }
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean register(String email, String password, BigDecimal weight, Integer height, String goal) {
+    public boolean register(String email, String password, BigDecimal weight, Integer height, String goal) {//
         User newUser = new User(email, password, weight, height, goal);
         return model.getUserDao().registerUser(newUser);
     }
 
     @Override
-    public void logout() {
+    public void logout() { //
         this.currentUser = null;
         this.currentSessionId = null;
     }
@@ -82,7 +94,7 @@ public class FitnessSystemController implements IFitnessSystemController {
     }
 
     @Override
-    public List<WorkoutPlan> getUserWorkoutPlans() {
+    public List<WorkoutPlan> getUserWorkoutPlans() {//
         if (currentUser == null) return Collections.emptyList();
         return model.getWorkoutPlanDao().getPlansByUser(currentUser.getId());
     }
@@ -106,12 +118,12 @@ public class FitnessSystemController implements IFitnessSystemController {
     }
 
     @Override
-    public List<Exercise> getAvailableExercises() {
+    public List<Exercise> getAvailableExercises() { //
         if (currentUser == null) return Collections.emptyList();
         return model.getExerciseDao().getAllExercises(currentUser.getId());
     }
 
-    public List<PlanItem> getPlanDetails(Integer planId) {
+    public List<PlanItem> getPlanDetails(Integer planId) {//
         return model.getWorkoutPlanDao().getPlanItems(planId);
     }
 
@@ -127,7 +139,6 @@ public class FitnessSystemController implements IFitnessSystemController {
     public Integer startSession(Integer planId) {
         if (currentUser == null || currentSessionId != null) return null;
 
-        //sessionProcess.determineStrategy(currentUser);
         Integer sessionId = model.getTrainingSessionDao().startSession(currentUser.getId(), planId);
 
         if (sessionId != null) {
@@ -140,7 +151,9 @@ public class FitnessSystemController implements IFitnessSystemController {
     public void endSession(String duration) {
         if (currentSessionId == null) return;
         sessionProcess.finishSession(currentUser.getId(), currentSessionId, duration);
-        notificationService.updateDailyWorkoutNotification(currentUser.getId());
+        if (notificationService != null) { 
+            notificationService.updateDailyWorkoutNotification(currentUser.getId());
+        }
         this.currentSessionId = null;
     }
 
@@ -193,7 +206,7 @@ public class FitnessSystemController implements IFitnessSystemController {
     }
 
     public boolean checkDailyNotification() {
-        if(currentUser == null) return false;
+        if(currentUser == null || notificationService == null) return false;
         notificationService.checkAndNotifyScheduledWorkout(currentUser);
         List<Notification> notifs = getUserNotifications();
         return notifs.stream().anyMatch(n -> n.getMessage().contains("Dzisiaj masz"));
