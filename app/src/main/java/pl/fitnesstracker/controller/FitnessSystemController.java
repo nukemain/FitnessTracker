@@ -217,4 +217,18 @@ public class FitnessSystemController implements IFitnessSystemController {
             logout();
         }
     }
+
+    // Helper methods for FitNesse testing
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+    }
+
+    public int getWorkoutPlanCount() {
+        if (currentUser == null) return 0;
+        return getUserWorkoutPlans().size();
+    }
+
+    public FitnessModel getModel() {
+        return model;
+    }
 }

@@ -1,0 +1,6 @@
+!path app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+!path app/build/intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes
+!path lib/*
+!define TEST_SYSTEM {fit}
+
+!contents -R2 -g -p -f -h

@@ -1,0 +1,10 @@
+|FitnessTrackerSuite.TestSessionManagement||22:22:30 Sun, Jan 25, 2026|
+|FitnessTrackerSuite||22:00:14 Sun, Jan 25, 2026|
+|FitnessTrackerSuite.TestExerciseManagement||21:49:55 Sun, Jan 25, 2026|
+|FitnessTrackerSuite.TestUserManagement||21:48:53 Sun, Jan 25, 2026|
+|FitnessTrackerSuite.TestCreatePlan||21:36:48 Sun, Jan 25, 2026|
+|FitnessTrackerSuite.SetUp||21:36:00 Sun, Jan 25, 2026|
+|FrontPage||21:33:51 Sun, Jan 25, 2026|
+|FrontPage.static||21:32:12 Sun, Jan 25, 2026|
+|FrontPage.test_page||21:30:19 Sun, Jan 25, 2026|
+|FrontPage.test_suite_page||21:29:26 Sun, Jan 25, 2026|

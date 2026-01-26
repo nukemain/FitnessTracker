@@ -1,0 +1,4 @@
+|pl.fitnesstracker.fitnesse.TestCreatePlan|
+|planName|description|createPlan?|
+|Plan A|Strength Training|true|
+|Plan B|Cardio|true|

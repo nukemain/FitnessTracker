@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<suiteResults>
+  <FitNesseVersion>v20251025</FitNesseVersion>
+  <rootPath>FitnessTrackerSuite</rootPath>
+  <date>2026-01-25T21:42:01+01:00</date>
+  <pageHistoryLink>FitnessTrackerSuite?pageHistory&amp;resultDate=20260125214201</pageHistoryLink>
+  <pageHistoryReference>
+    <name>FitnessTrackerSuite.TestCreatePlan</name>
+    <date>2026-01-25T21:42:01+01:00</date>
+    <pageHistoryLink>FitnessTrackerSuite.TestCreatePlan?pageHistory&amp;resultDate=20260125214201</pageHistoryLink>
+    <counts>
+      <right>2</right>
+      <wrong>0</wrong>
+      <ignores>0</ignores>
+      <exceptions>0</exceptions>
+    </counts>
+    <runTimeInMillis>3</runTimeInMillis>
+  </pageHistoryReference>
+  <executionLog>
+    <testSystem>fit:fit.FitServer</testSystem>
+    <command>java -cp app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes:app/build/intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes:/home/zelgith/apka android/FitnessTracker/lib/fitnesse-standalone.jar:/home/zelgith/apka android/FitnessTracker/lib/fitnesse-standalone.jar fit.FitServer laptop 37299 3863</command>
+    <exitCode>0</exitCode>
+    <stdOut></stdOut>
+    <stdErr></stdErr>
+  </executionLog>
+  <finalCounts>
+    <right>1</right>
+    <wrong>0</wrong>
+    <ignores>0</ignores>
+    <exceptions>0</exceptions>
+  </finalCounts>
+  <totalRunTimeInMillis>411</totalRunTimeInMillis>
+</suiteResults>
+

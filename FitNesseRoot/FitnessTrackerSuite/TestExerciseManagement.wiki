@@ -1,0 +1,3 @@
+|pl.fitnesstracker.fitnesse.TestExerciseManagement|
+|name|description|category|type|addExercise?|
+|PushUps|Detailed desc|Strength|Bodyweight|501|

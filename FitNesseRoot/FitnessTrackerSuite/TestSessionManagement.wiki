@@ -1,0 +1,3 @@
+|pl.fitnesstracker.fitnesse.TestSessionManagement|
+|planId|startSession?|duration|endSession?|
+|100|2001|1h 30m|true|

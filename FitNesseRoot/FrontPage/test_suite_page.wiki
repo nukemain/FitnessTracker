@@ -1,0 +1,6 @@
+---
+Suite
+---
+!path app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes
+!path app/build/intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes
+!path lib/*.jar
