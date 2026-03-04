@@ -42,8 +42,8 @@ Aplikacja została stworzona w języku **Java**, natomiast warstwę bazy danych 
 ## Zrzuty ekranu 
 <html>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/6bc235eb-fe02-4413-97c2-6cef198bd069" width="250",style="margin-right:60px;">>
-  <img src="https://github.com/user-attachments/assets/f713748d-e21b-400a-8977-02959ca05c2c" width="250",style="margin-right:60px;">>
+  <img src="https://github.com/user-attachments/assets/6bc235eb-fe02-4413-97c2-6cef198bd069" width="250",style="margin-right:60px;">
+  <img src="https://github.com/user-attachments/assets/f713748d-e21b-400a-8977-02959ca05c2c" width="250",style="margin-right:60px;">
   <img src="https://github.com/user-attachments/assets/43184112-55dd-4422-8750-c643058e5c22" width="250">
 </p>
 </html>
